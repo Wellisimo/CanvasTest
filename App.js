@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
-import {Dimensions, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Dimensions, View} from 'react-native';
 import axios from 'axios';
 import SignatureScreen from 'react-native-signature-canvas';
+import {Buffer} from 'buffer';
 
 const IMAGE_DATA_URI_PREFIX = 'data:image/jpg;base64,';
 const largeImage =
@@ -26,21 +27,20 @@ const App = () => {
     try {
       const {data} = await axios.get(url, {responseType: 'arraybuffer'});
       const imageBase64 = new Buffer(data, 'binary').toString('base64');
-      return IMAGE_DATA_URI_PREFIX + imageBase64;
+
+      setImage(IMAGE_DATA_URI_PREFIX + imageBase64);
     } catch (error) {
       console.log('getBase64Image error: ', error);
     }
   };
 
+  useEffect(() => {
+    getBase64Image(smallImage);
+  }, []);
+
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Test</Text>
-      {/* <SignatureScreen
-        autoClear
-        trimWhitespace
-        dataURL={image}
-        webStyle={drawerStyle}
-      /> */}
+      <SignatureScreen autoClear dataURL={image} webStyle={drawerStyle} />
     </View>
   );
 };
