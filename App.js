@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Dimensions, View} from 'react-native';
+import {Dimensions} from 'react-native';
 import axios from 'axios';
 import SignatureScreen from 'react-native-signature-canvas';
 import {Buffer} from 'buffer';
@@ -17,16 +17,16 @@ const App = () => {
   const [image, setImage] = useState('');
 
   const drawerStyle = `.m-signature-pad {box-shadow: none; border: none;} 
-                .m-signature-pad--body {border: none; background-color: 'black';}
+                .m-signature-pad--body {border: none;}
                 .m-signature-pad--body canvas {border-radius: 0px; width: ${screenWidth}px;}
                 .m-signature-pad--footer {display: none; margin: 0px;}
                 body,html {
-                width: ${screenWidth}px; height: ${screenHeight}px; background-color: 'black'}; }`;
+                width: ${screenWidth}px; height: ${screenHeight}px;}; }`;
 
   const getBase64Image = async url => {
     try {
       const {data} = await axios.get(url, {responseType: 'arraybuffer'});
-      const imageBase64 = new Buffer(data, 'binary').toString('base64');
+      const imageBase64 = Buffer.from(data, 'binary').toString('base64');
 
       setImage(IMAGE_DATA_URI_PREFIX + imageBase64);
     } catch (error) {
@@ -35,13 +35,16 @@ const App = () => {
   };
 
   useEffect(() => {
+    // choose here what image to render
     getBase64Image(smallImage);
   }, []);
 
   return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <SignatureScreen autoClear dataURL={image} webStyle={drawerStyle} />
-    </View>
+    <SignatureScreen
+      dataURL={image}
+      webStyle={drawerStyle}
+      backgroundColor="green"
+    />
   );
 };
 
