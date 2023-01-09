@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Dimensions} from 'react-native';
+import {Dimensions, Image} from 'react-native';
 import axios from 'axios';
 import SignatureScreen from 'react-native-signature-canvas';
 import {Buffer} from 'buffer';
@@ -15,6 +15,7 @@ const screenHeight = Dimensions.get('window').height;
 
 const App = () => {
   const [image, setImage] = useState('');
+  const [imageIsReady, setImageIsReady] = useState(false);
 
   const drawerStyle = `.m-signature-pad {box-shadow: none; border: none;} 
                 .m-signature-pad--body {border: none;}
@@ -29,6 +30,7 @@ const App = () => {
       const imageBase64 = Buffer.from(data, 'binary').toString('base64');
 
       setImage(IMAGE_DATA_URI_PREFIX + imageBase64);
+      setImageIsReady(false);
     } catch (error) {
       console.log('getBase64Image error: ', error);
     }
@@ -36,15 +38,29 @@ const App = () => {
 
   useEffect(() => {
     // choose here what image to render
-    getBase64Image(smallImage);
+    getBase64Image(largeImage);
   }, []);
 
+  if (!image) {
+    return null;
+  }
+
   return (
-    <SignatureScreen
-      dataURL={image}
-      webStyle={drawerStyle}
-      backgroundColor="green"
-    />
+    <>
+      {imageIsReady ? (
+        <SignatureScreen
+          dataURL={image}
+          webStyle={drawerStyle}
+          backgroundColor="green"
+        />
+      ) : (
+        <Image
+          onLoadEnd={() => setImageIsReady(true)}
+          source={{uri: image}}
+          style={{height: 1, width: 1}}
+        />
+      )}
+    </>
   );
 };
 
